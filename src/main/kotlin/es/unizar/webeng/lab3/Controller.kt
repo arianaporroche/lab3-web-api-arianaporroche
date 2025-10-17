@@ -24,8 +24,8 @@ class EmployeeController(
     @Operation(summary = "Obtener todos los empleados", description = "Devuelve la lista completa de empleados")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
-        ]
+            ApiResponse(responseCode = "200", description = "Lista obtenida correctamente"),
+        ],
     )
     @GetMapping("/employees")
     fun all(): Iterable<Employee> = repository.findAll()
@@ -34,8 +34,8 @@ class EmployeeController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "201", description = "Empleado creado correctamente"),
-            ApiResponse(responseCode = "400", description = "Solicitud inválida")
-        ]
+            ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+        ],
     )
     @PostMapping("/employees")
     fun newEmployee(
@@ -54,8 +54,8 @@ class EmployeeController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Empleado encontrado"),
-            ApiResponse(responseCode = "404", description = "Empleado no encontrado")
-        ]
+            ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
+        ],
     )
     @GetMapping("/employees/{id}")
     fun one(
@@ -66,8 +66,8 @@ class EmployeeController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Empleado actualizado"),
-            ApiResponse(responseCode = "201", description = "Empleado creado")
-        ]
+            ApiResponse(responseCode = "201", description = "Empleado creado"),
+        ],
     )
     @PutMapping("/employees/{id}")
     fun replaceEmployee(
@@ -100,8 +100,8 @@ class EmployeeController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "204", description = "Empleado eliminado correctamente"),
-            ApiResponse(responseCode = "404", description = "Empleado no encontrado")
-        ]
+            ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
+        ],
     )
     @DeleteMapping("/employees/{id}")
     fun deleteEmployee(
