@@ -27,12 +27,18 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
 
-    // For Swagger documentation
+    // Swagger documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
     testImplementation(libs.spring.boot.starter.test)
     testImplementation("io.mockk:mockk:1.13.7")
     testImplementation("com.ninja-squad:springmockk:4.0.0")
+
+    // JUnit 5
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+    // Kotlin test assertions
+    testImplementation(kotlin("test"))
 }
 
 tasks.withType<Test> {
