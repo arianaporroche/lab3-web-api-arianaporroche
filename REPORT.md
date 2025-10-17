@@ -3,6 +3,12 @@
 ## Description of Changes
 [Detailed description of all changes made]
 
+
+Bonus:
+2. **Implement RESTful API Documentation with OpenAPI/Swagger**
+http://localhost:8080/swagger-ui/index.html
+
+
 ## Technical Decisions
 [Explanation of technical choices made]
 
