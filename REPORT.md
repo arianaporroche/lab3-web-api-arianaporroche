@@ -8,6 +8,11 @@ Bonus:
 2. **Implement RESTful API Documentation with OpenAPI/Swagger**
 http://localhost:8080/swagger-ui/index.html
 
+1. Security and Authentication and Authorization
+- Authentication JWT-based
+- Authorization role-based (ADMIN, USER)
+- Protection based on user permissions for HTTP methods
+
 
 ## Technical Decisions
 [Explanation of technical choices made]
