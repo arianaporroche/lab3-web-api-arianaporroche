@@ -1,6 +1,8 @@
 package es.unizar.webeng.lab3
 
+import es.unizar.webeng.lab3.Exceptions.EmployeeAlreadyExistsException
 import es.unizar.webeng.lab3.Exceptions.EmployeeNotFoundException
+import es.unizar.webeng.lab3.Exceptions.NoEmployeesFoundException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -34,7 +36,11 @@ class EmployeeController(
         ],
     )
     @GetMapping("/employees")
-    fun all(): Iterable<Employee> = repository.findAll()
+    fun all(): Iterable<Employee> {
+        val employees = repository.findAll()
+        if (employees.none()) throw Exceptions.NoEmployeesFoundException()
+        return employees
+    }
 
     @Operation(summary = "Crear un nuevo empleado", description = "Crea un empleado y devuelve su información con ID")
     @ApiResponses(
@@ -47,6 +53,9 @@ class EmployeeController(
     fun newEmployee(
         @RequestBody newEmployee: Employee,
     ): ResponseEntity<Employee> {
+        if (newEmployee.id != null && repository.existsById(newEmployee.id!!)) {
+            throw Exceptions.EmployeeAlreadyExistsException(newEmployee.id!!)
+        }
         val employee = repository.save(newEmployee)
         val location =
             ServletUriComponentsBuilder
@@ -140,6 +149,56 @@ class EmployeeController(
         problem.instance = URI.create(request.requestURI)
         problem.type = URI.create("https://example.com/problem/not-found")
 
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
+    }
+
+    /**
+     * Handles EmployeeAlreadyExistsException and returns an RFC 7807–compliant error response.
+     *
+     * This method is invoked when a request attempts to create a new employee
+     * with an ID that already exists in the repository. It converts the exception
+     * into a standardized [ProblemDetail] object according to RFC 7807 ("Problem Details for HTTP APIs").
+     *
+     * @param ex The exception that was thrown because the employee already exists.
+     * @param request The HTTP request that triggered the exception.
+     * @return A [ResponseEntity] containing a [ProblemDetail] with status 409 (Conflict),
+     *         indicating that the request could not be completed due to a resource conflict.
+     */
+    @ExceptionHandler(Exceptions.EmployeeAlreadyExistsException::class)
+    fun handleAlreadyExists(
+        ex: Exceptions.EmployeeAlreadyExistsException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ProblemDetail> {
+        val problem = ProblemDetail.forStatus(HttpStatus.CONFLICT)
+        problem.title = "Employee already exists"
+        problem.detail = ex.message
+        problem.instance = URI.create(request.requestURI)
+        problem.type = URI.create("https://example.com/problem/employee-already-exists")
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem)
+    }
+
+    /**
+     * Handles NoEmployeesFoundException and returns an RFC 7807–compliant error response.
+     *
+     * This method is invoked when a request to retrieve all employees finds none in the repository.
+     * It converts the exception into a standardized [ProblemDetail] object according to RFC 7807,
+     * providing structured information that clients can use to handle empty data scenarios gracefully.
+     *
+     * @param ex The exception that was thrown because no employees were found.
+     * @param request The HTTP request that triggered the exception.
+     * @return A [ResponseEntity] containing a [ProblemDetail] with status 404 (Not Found),
+     *         indicating that the requested resource collection is empty.
+     */
+    @ExceptionHandler(Exceptions.NoEmployeesFoundException::class)
+    fun handleNoEmployees(
+        ex: Exceptions.NoEmployeesFoundException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ProblemDetail> {
+        val problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND)
+        problem.title = "No employees found"
+        problem.detail = ex.message
+        problem.instance = URI.create(request.requestURI)
+        problem.type = URI.create("https://example.com/problem/no-employees")
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
     }
 }
