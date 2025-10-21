@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.net.URI
 
 @Tag(name = "Employees", description = "API para gestionar empleados")
 @RestController
@@ -114,7 +117,21 @@ class EmployeeController(
         return ResponseEntity.noContent().build()
     }
 
-    @ExceptionHandler(Exceptions.EmployeeNotFoundException::class)
-    fun handleNotFound(ex: Exceptions.EmployeeNotFoundException): ResponseEntity<String> =
-        ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.message)
+    // @ExceptionHandler(Exceptions.EmployeeNotFoundException::class)
+    // fun handleNotFound(ex: Exceptions.EmployeeNotFoundException): ResponseEntity<String> =
+    //     ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.message)
+    // --- RFC 7807 compliant error response ---
+    @ExceptionHandler(EmployeeNotFoundException::class)
+    fun handleNotFound(
+        ex: EmployeeNotFoundException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ProblemDetail> {
+        val problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND)
+        problem.title = "Resource not found"
+        problem.detail = ex.message
+        problem.instance = URI.create(request.requestURI)
+        problem.type = URI.create("https://example.com/problem/not-found")
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
+    }
 }
