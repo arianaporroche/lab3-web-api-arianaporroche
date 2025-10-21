@@ -19,7 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @Tag(name = "Employees", description = "API para gestionar empleados")
 @RestController
-@SecurityRequirement(name = "bearerAuth") 
+@SecurityRequirement(name = "bearerAuth")
 class EmployeeController(
     private val repository: EmployeeRepository,
 ) {

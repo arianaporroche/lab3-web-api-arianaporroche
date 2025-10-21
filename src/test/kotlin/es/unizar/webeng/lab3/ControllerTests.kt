@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -45,6 +46,28 @@ class ControllerTests {
     @MockkBean
     private lateinit var employeeRepository: EmployeeRepository
 
+    private lateinit var jwtToken: String
+
+    @BeforeEach
+    fun obtainToken() {
+        val loginRequest = """
+            { "username": "admin", "password": "1234" }
+        """
+        val response =
+            mvc
+                .post("/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = loginRequest
+                }.andReturn()
+                .response
+                .contentAsString
+
+        // Parse JSON { "token": "..." }
+        jwtToken = """$response""".substringAfter("\"token\":\"").substringBefore("\"")
+    }
+
+    private fun authHeader() = "Bearer $jwtToken"
+
     @Test
     fun `post is not safe and not idempotent`() {
         // SETUP
@@ -62,6 +85,7 @@ class ControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Mary")
                 accept = MediaType.APPLICATION_JSON
+                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Location", "http://localhost/employees/1") }
@@ -76,6 +100,7 @@ class ControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Mary")
                 accept = MediaType.APPLICATION_JSON
+                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Location", "http://localhost/employees/2") }
@@ -108,25 +133,34 @@ class ControllerTests {
         }
         //
 
-        mvc.get("/employees/1").andExpect {
-            status { isOk() }
-            content {
-                contentType(MediaType.APPLICATION_JSON)
-                json(MANAGER_RESPONSE_BODY("Mary", 1))
+        mvc
+            .get("/employees/1") {
+                header("Authorization", authHeader())
+            }.andExpect {
+                status { isOk() }
+                content {
+                    contentType(MediaType.APPLICATION_JSON)
+                    json(MANAGER_RESPONSE_BODY("Mary", 1))
+                }
             }
-        }
 
-        mvc.get("/employees/1").andExpect {
-            status { isOk() }
-            content {
-                contentType(MediaType.APPLICATION_JSON)
-                json(MANAGER_RESPONSE_BODY("Mary", 1))
+        mvc
+            .get("/employees/1") {
+                header("Authorization", authHeader())
+            }.andExpect {
+                status { isOk() }
+                content {
+                    contentType(MediaType.APPLICATION_JSON)
+                    json(MANAGER_RESPONSE_BODY("Mary", 1))
+                }
             }
-        }
 
-        mvc.get("/employees/2").andExpect {
-            status { isNotFound() }
-        }
+        mvc
+            .get("/employees/2") {
+                header("Authorization", authHeader())
+            }.andExpect {
+                status { isNotFound() }
+            }
 
         // VERIFY
         verify(exactly = 0) {
@@ -160,6 +194,7 @@ class ControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Tom")
                 accept = MediaType.APPLICATION_JSON
+                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Content-Location", "http://localhost/employees/1") }
@@ -174,6 +209,7 @@ class ControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Tom")
                 accept = MediaType.APPLICATION_JSON
+                header("Authorization", authHeader())
             }.andExpect {
                 status { isOk() }
                 header { string("Content-Location", "http://localhost/employees/1") }
@@ -203,13 +239,19 @@ class ControllerTests {
         }
         //
 
-        mvc.delete("/employees/1").andExpect {
-            status { isNoContent() }
-        }
+        mvc
+            .delete("/employees/1") {
+                header("Authorization", authHeader())
+            }.andExpect {
+                status { isNoContent() }
+            }
 
-        mvc.delete("/employees/1").andExpect {
-            status { isNoContent() }
-        }
+        mvc
+            .delete("/employees/1") {
+                header("Authorization", authHeader())
+            }.andExpect {
+                status { isNoContent() }
+            }
 
         // VERIFY
         verify(exactly = 2) {

@@ -8,18 +8,16 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class OpenApiConfig {
-
     @Bean
-    fun customOpenAPI(): OpenAPI {
-        return OpenAPI()
+    fun customOpenAPI(): OpenAPI =
+        OpenAPI()
             .components(
                 Components().addSecuritySchemes(
                     "bearerAuth",
                     SecurityScheme()
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
-                        .bearerFormat("JWT")
-                )
+                        .bearerFormat("JWT"),
+                ),
             )
-    }
 }
