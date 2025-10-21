@@ -20,13 +20,16 @@ class AuthController {
     @PostMapping("/login")
     fun login(
         @RequestBody request: LoginRequest,
-    ): ResponseEntity<TokenResponse> {
-        // Aquí podrías validar contra una base de datos, pero haremos algo básico:
-        return if (request.username == "admin" && request.password == "1234") {
-            val token = JwtUtil.generateToken(request.username)
-            ResponseEntity.ok(TokenResponse(token))
-        } else {
-            ResponseEntity.status(401).build()
+    ): ResponseEntity<TokenResponse> =
+        when {
+            request.username == "admin" && request.password == "1234" -> {
+                val token = JwtUtil.generateToken(request.username, "ADMIN")
+                ResponseEntity.ok(TokenResponse(token))
+            }
+            request.username == "user" && request.password == "1234" -> {
+                val token = JwtUtil.generateToken(request.username, "USER")
+                ResponseEntity.ok(TokenResponse(token))
+            }
+            else -> ResponseEntity.status(401).build()
         }
-    }
 }

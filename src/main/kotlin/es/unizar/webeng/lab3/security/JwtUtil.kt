@@ -7,13 +7,17 @@ import java.util.Date
 
 object JwtUtil {
     private val SECRET = System.getenv("JWT_SECRET") ?: "default_secret_dev"
-    private const val EXPIRATION_TIME = 1000 * 60 * 60 // 1 hour
+    private const val EXPIRATION_TIME = 1000 * 60 * 60 // 1 hora
     private val algorithm = Algorithm.HMAC256(SECRET)
 
-    fun generateToken(username: String): String =
+    fun generateToken(
+        username: String,
+        role: String,
+    ): String =
         JWT
             .create()
             .withSubject(username)
+            .withClaim("role", role)
             .withIssuedAt(Date())
             .withExpiresAt(Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .sign(algorithm)
