@@ -15,30 +15,30 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .csrf { it.disable() }
+            .csrf { it.disable() } // Disable CSRF since we are using JWTs
             .authorizeHttpRequests { auth ->
                 auth
-                    // Público
+                    // Public endpoints
                     .requestMatchers("/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                     .permitAll()
-                    // GET (lectura) accesible a USER y ADMIN
+                    // GET accessible by USER and ADMIN
                     .requestMatchers(HttpMethod.GET, "/employees/**")
                     .hasAnyRole("USER", "ADMIN")
-                    // POST, PUT, DELETE (modificación) solo para ADMIN
+                    // POST, PUT, DELETE accessible only by ADMIN
                     .requestMatchers(HttpMethod.POST, "/employees/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/employees/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/employees/**")
                     .hasRole("ADMIN")
-                    // Cualquier otra ruta → autenticada
+                    // Any other request must be authenticated
                     .anyRequest()
                     .authenticated()
             }.sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless session; no server-side session
             }
 
-        // Insertar el filtro JWT antes del de autenticación por usuario/contraseña
+        // Add JWT filter before the default UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
