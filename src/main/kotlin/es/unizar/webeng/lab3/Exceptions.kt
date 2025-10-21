@@ -1,25 +1,18 @@
 package es.unizar.webeng.lab3
 
-/** Contenedor de todas las excepciones de la aplicación */
+/** 
+ * Container class for all custom exceptions in the application.
+ * 
+ * Each inner class represents a specific error scenario that can occur in the system.
+ */
 class Exceptions {
+
+    /**
+     * Thrown when an employee with the specified ID cannot be found in the database.
+     *
+     * @param id The ID of the employee that was not found.
+     */
     class EmployeeNotFoundException(
         id: Long,
     ) : RuntimeException("Could not find employee $id")
-
-    // Aquí puedes añadir más excepciones personalizadas
 }
-
-// package es.unizar.webeng.lab3
-
-// import org.springframework.http.HttpStatus
-// import org.springframework.web.bind.annotation.ResponseStatus
-
-// /** Contenedor de todas las excepciones de la aplicación */
-// class Exceptions {
-
-//     @ResponseStatus(HttpStatus.NOT_FOUND)
-//     class EmployeeNotFoundException(id: Long) :
-//         RuntimeException("Could not find employee $id")
-
-//     // Aquí puedes añadir más excepciones personalizadas
-// }

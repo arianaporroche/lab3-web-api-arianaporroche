@@ -117,10 +117,18 @@ class EmployeeController(
         return ResponseEntity.noContent().build()
     }
 
-    // @ExceptionHandler(Exceptions.EmployeeNotFoundException::class)
-    // fun handleNotFound(ex: Exceptions.EmployeeNotFoundException): ResponseEntity<String> =
-    //     ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.message)
-    // --- RFC 7807 compliant error response ---
+    /**
+     * Handles EmployeeNotFoundException and returns an RFC 7807–compliant error response.
+     *
+     * This method converts the thrown [EmployeeNotFoundException] into a standardized
+     * [ProblemDetail] object according to RFC 7807 ("Problem Details for HTTP APIs").
+     * It provides structured information about the error, making it easier for clients
+     * to understand and handle API problems consistently.
+     *
+     * @param ex The exception that was thrown when an employee was not found.
+     * @param request The HTTP request that triggered the exception.
+     * @return A [ResponseEntity] containing a [ProblemDetail] with status 404 (Not Found).
+     */
     @ExceptionHandler(EmployeeNotFoundException::class)
     fun handleNotFound(
         ex: EmployeeNotFoundException,
