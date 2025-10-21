@@ -10,12 +10,12 @@ import kotlin.test.assertTrue
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class SwaggerDocumentationTests {
+class OpenApiDocumentationTests {
     @Autowired
     lateinit var mockMvc: MockMvc
 
     @Test
-    fun `Swagger JSON should contain employees endpoints`() {
+    fun `OpenAPI JSON should contain employees endpoints`() {
         val result =
             mockMvc
                 .get("/v3/api-docs")
