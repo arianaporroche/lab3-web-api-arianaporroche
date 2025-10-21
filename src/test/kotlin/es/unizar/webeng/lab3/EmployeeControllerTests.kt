@@ -39,7 +39,7 @@ private val MANAGER_RESPONSE_BODY = { name: String, id: Int ->
 
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-class ControllerTests {
+class EmployeeControllerTests {
     @Autowired
     private lateinit var mvc: MockMvc
 
