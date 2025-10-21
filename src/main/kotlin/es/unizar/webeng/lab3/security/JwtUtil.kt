@@ -8,8 +8,10 @@ import java.util.Date
 object JwtUtil {
     // Secret key for signing JWTs (read from environment variable or use default for development)
     private val SECRET = System.getenv("JWT_SECRET") ?: "default_secret_dev"
+
     // Token expiration time in milliseconds (1 hour)
     private const val EXPIRATION_TIME = 1000 * 60 * 60
+
     // Algorithm used to sign the JWT
     private val algorithm = Algorithm.HMAC256(SECRET)
 

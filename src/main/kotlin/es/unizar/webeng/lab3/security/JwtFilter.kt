@@ -13,7 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtFilter : OncePerRequestFilter() {
-
     /**
      * Filter method executed once per request.
      * It checks if the Authorization header contains a valid JWT
