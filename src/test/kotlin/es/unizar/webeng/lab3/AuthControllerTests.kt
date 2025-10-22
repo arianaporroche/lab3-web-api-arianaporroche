@@ -32,8 +32,15 @@ class AuthControllerTests {
                 }.andReturn()
                 .response
 
+        // Status check
         assertTrue(result.status == 200, "Admin login should return 200")
+
+        // Body check
         assertTrue(result.contentAsString.contains("token"), "Response should contain JWT token")
+
+        // Header check
+        val authHeader = result.getHeader("Authorization")
+        assertTrue(authHeader != null && authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token")
     }
 
     @Test
@@ -46,8 +53,15 @@ class AuthControllerTests {
                 }.andReturn()
                 .response
 
+        // Status check
         assertTrue(result.status == 200, "User login should return 200")
+
+        // Body check
         assertTrue(result.contentAsString.contains("token"), "Response should contain JWT token")
+
+        // Header check
+        val authHeader = result.getHeader("Authorization")
+        assertTrue(authHeader != null && authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token")
     }
 
     @Test
@@ -60,6 +74,7 @@ class AuthControllerTests {
                 }.andReturn()
                 .response
 
+        // Status check
         assertTrue(result.status == 401, "Invalid credentials should return 401")
     }
 }
