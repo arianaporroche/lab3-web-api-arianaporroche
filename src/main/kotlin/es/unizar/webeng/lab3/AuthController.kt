@@ -20,16 +20,21 @@ class AuthController {
     @PostMapping("/login")
     fun login(
         @RequestBody request: LoginRequest,
-    ): ResponseEntity<TokenResponse> =
-        when {
-            request.username == "admin" && request.password == "1234" -> {
-                val token = JwtUtil.generateToken(request.username, "ADMIN")
-                ResponseEntity.ok(TokenResponse(token))
+    ): ResponseEntity<TokenResponse> {
+        val token =
+            when {
+                request.username == "admin" && request.password == "1234" -> JwtUtil.generateToken(request.username, "ADMIN")
+                request.username == "user" && request.password == "1234" -> JwtUtil.generateToken(request.username, "USER")
+                else -> null
             }
-            request.username == "user" && request.password == "1234" -> {
-                val token = JwtUtil.generateToken(request.username, "USER")
-                ResponseEntity.ok(TokenResponse(token))
-            }
-            else -> ResponseEntity.status(401).build()
+
+        return if (token != null) {
+            ResponseEntity
+                .ok()
+                .header("Authorization", "Bearer $token")
+                .body(TokenResponse(token))
+        } else {
+            ResponseEntity.status(401).build()
         }
+    }
 }
