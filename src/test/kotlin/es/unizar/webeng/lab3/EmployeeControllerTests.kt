@@ -48,8 +48,6 @@ class EmployeeControllerTests {
 
     private lateinit var jwtToken: String
 
-    private fun authHeader() = ""
-
     @Test
     @WithMockUser(username = "admin", roles = ["ADMIN"])
     fun `post is not safe and not idempotent`() {
