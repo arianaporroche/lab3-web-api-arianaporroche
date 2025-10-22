@@ -4,13 +4,13 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -48,27 +48,10 @@ class EmployeeControllerTests {
 
     private lateinit var jwtToken: String
 
-    @BeforeEach
-    fun obtainToken() {
-        val loginRequest = """
-            { "username": "admin", "password": "1234" }
-        """
-        val response =
-            mvc
-                .post("/login") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = loginRequest
-                }.andReturn()
-                .response
-                .contentAsString
-
-        // Parse JSON { "token": "..." }
-        jwtToken = """$response""".substringAfter("\"token\":\"").substringBefore("\"")
-    }
-
-    private fun authHeader() = "Bearer $jwtToken"
+    private fun authHeader() = ""
 
     @Test
+    @WithMockUser(username = "admin", roles = ["ADMIN"])
     fun `post is not safe and not idempotent`() {
         // SETUP
         every {
@@ -85,7 +68,6 @@ class EmployeeControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Mary")
                 accept = MediaType.APPLICATION_JSON
-                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Location", "http://localhost/employees/1") }
@@ -100,7 +82,6 @@ class EmployeeControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Mary")
                 accept = MediaType.APPLICATION_JSON
-                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Location", "http://localhost/employees/2") }
@@ -118,6 +99,7 @@ class EmployeeControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = ["ADMIN"])
     fun `get is safe and idempotent`() {
         // SETUP
         every {
@@ -134,9 +116,8 @@ class EmployeeControllerTests {
         //
 
         mvc
-            .get("/employees/1") {
-                header("Authorization", authHeader())
-            }.andExpect {
+            .get("/employees/1")
+            .andExpect {
                 status { isOk() }
                 content {
                     contentType(MediaType.APPLICATION_JSON)
@@ -145,9 +126,8 @@ class EmployeeControllerTests {
             }
 
         mvc
-            .get("/employees/1") {
-                header("Authorization", authHeader())
-            }.andExpect {
+            .get("/employees/1")
+            .andExpect {
                 status { isOk() }
                 content {
                     contentType(MediaType.APPLICATION_JSON)
@@ -156,9 +136,8 @@ class EmployeeControllerTests {
             }
 
         mvc
-            .get("/employees/2") {
-                header("Authorization", authHeader())
-            }.andExpect {
+            .get("/employees/2")
+            .andExpect {
                 status { isNotFound() }
             }
 
@@ -172,6 +151,7 @@ class EmployeeControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = ["ADMIN"])
     fun `put is idempotent but not safe`() {
         // SETUP
         every {
@@ -194,7 +174,6 @@ class EmployeeControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Tom")
                 accept = MediaType.APPLICATION_JSON
-                header("Authorization", authHeader())
             }.andExpect {
                 status { isCreated() }
                 header { string("Content-Location", "http://localhost/employees/1") }
@@ -209,7 +188,6 @@ class EmployeeControllerTests {
                 contentType = MediaType.APPLICATION_JSON
                 content = MANAGER_REQUEST_BODY("Tom")
                 accept = MediaType.APPLICATION_JSON
-                header("Authorization", authHeader())
             }.andExpect {
                 status { isOk() }
                 header { string("Content-Location", "http://localhost/employees/1") }
@@ -232,6 +210,7 @@ class EmployeeControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = ["ADMIN"])
     fun `delete is idempotent but not safe`() {
         // SETUP
         justRun {
@@ -240,16 +219,14 @@ class EmployeeControllerTests {
         //
 
         mvc
-            .delete("/employees/1") {
-                header("Authorization", authHeader())
-            }.andExpect {
+            .delete("/employees/1")
+            .andExpect {
                 status { isNoContent() }
             }
 
         mvc
-            .delete("/employees/1") {
-                header("Authorization", authHeader())
-            }.andExpect {
+            .delete("/employees/1")
+            .andExpect {
                 status { isNoContent() }
             }
 

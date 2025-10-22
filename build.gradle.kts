@@ -33,6 +33,8 @@ dependencies {
     // Java JWT
     implementation("com.auth0:java-jwt:4.4.0")
 
+    // Spring Security Test
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation(libs.spring.boot.starter.test)
     testImplementation("io.mockk:mockk:1.13.7")
     testImplementation("com.ninja-squad:springmockk:4.0.0")
